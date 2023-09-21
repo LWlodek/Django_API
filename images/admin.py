@@ -1,6 +1,9 @@
 from django.contrib import admin
 from . import models
 
+@admin.register(models.Image)
+class AuthorAdmin2(admin.ModelAdmin):
+    list_display = ('image_file',)
 
 @admin.register(models.Tier)
 class AuthorAdmin(admin.ModelAdmin):

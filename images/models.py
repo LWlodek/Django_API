@@ -1,16 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 # Define the custom Tier model for account tiers with configurable options.
 class Tier(models.Model):
     name = models.CharField(max_length=100, unique=True)
     thumbnail_sizes1 = models.CharField(max_length=255, blank=True, null=True, default='200')  # Store thumbnail sizes as CSV
-    thumbnail_sizes2 = models.CharField(max_length=255, blank=True, null=True,)  # Store thumbnail sizes as CSV
+    thumbnail_sizes2 = models.CharField(max_length=255, blank=True, null=True)  # Store thumbnail sizes as CSV
     has_original_link = models.BooleanField(default=False)
     can_generate_expiring_link = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
+
 
 # Define the Image model to store image details.
 class Image(models.Model):
@@ -25,3 +27,6 @@ class Image(models.Model):
 
     def __str__(self):
         return f"Image uploaded by {self.user.username} at {self.upload_datetime}"
+
+    def generate_expiring_link(self, expiration_seconds):
+        pass
