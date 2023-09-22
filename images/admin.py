@@ -5,7 +5,7 @@ from . import models
 class AuthorAdmin2(admin.ModelAdmin):
     list_display = ('image_file',)
 
-@admin.register(models.CustomUser)
+@admin.register(models.UserProfile)
 class AuthorAdmin3(admin.ModelAdmin):
     list_display = ('username', 'tier',)
 

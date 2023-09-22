@@ -4,10 +4,8 @@ from rest_framework.views import APIView
 from rest_framework import status
 from .serializers import ImageUploadSerializer
 from images.models import Image, Tier
+from PIL import Image as PILImage  # Import PIL for image processing
 
-
-# Assuming you have a default tier named 'Basic' in your Tier model
-default_tier, created = Tier.objects.get_or_create(name='Basic')
 
 class ImageUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -17,11 +15,12 @@ class ImageUploadView(APIView):
         if serializer.is_valid():
             uploaded_image = serializer.validated_data['image']
 
-            # Create an Image instance with the default tier
+            user_tier = request.user.tier
+            # Create an Image instance with the user's tier
             image_instance = Image.objects.create(
                 user=request.user,  # Assuming user is authenticated
-                image_file=uploaded_image,
-                tier=default_tier,  # Set the default tier
+                tier=user_tier,  # Associate the image with the user's tier
+                image_file=uploaded_image
             )
 
             # custom logic to generate thumbnails, expiration links, etc., goes here.

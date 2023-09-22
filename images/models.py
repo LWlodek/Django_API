@@ -1,11 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import User, AbstractUser, Group, Permission
+from django.contrib.auth.models import AbstractUser
 
 
 # Define the custom Tier model for account tiers with configurable options.
 class Tier(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    thumbnail_sizes1 = models.CharField(max_length=255, blank=True, null=True, default='200')  # Store thumbnail sizes as CSV
+    thumbnail_sizes1 = models.CharField(max_length=255, blank=True, null=True)  # Store thumbnail sizes as CSV
     thumbnail_sizes2 = models.CharField(max_length=255, blank=True, null=True)  # Store thumbnail sizes as CSV
     has_original_link = models.BooleanField(default=False)
     can_generate_expiring_link = models.BooleanField(default=False)
@@ -13,10 +13,13 @@ class Tier(models.Model):
     def __str__(self):
         return self.name
 
+class UserProfile(AbstractUser):
+    tier = models.ForeignKey(Tier, on_delete=models.CASCADE, null=True, blank=True)
+
 
 # Define the Image model to store image details.
 class Image(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     tier = models.ForeignKey(Tier, on_delete=models.PROTECT)
     image_file = models.ImageField(upload_to='images/')
     upload_datetime = models.DateTimeField(auto_now_add=True)
@@ -30,15 +33,3 @@ class Image(models.Model):
 
     def generate_expiring_link(self, expiration_seconds):
         pass
-
-
-class CustomUser(AbstractUser):
-    tier = models.ForeignKey(Tier, on_delete=models.CASCADE, null=True, blank=True)
-
-    # Add unique related_name values for groups and user_permissions
-    groups = models.ManyToManyField(Group, blank=True, related_name='custom_users_groups')
-    user_permissions = models.ManyToManyField(
-        Permission,
-        blank=True,
-        related_name='custom_users_user_permissions',
-    )
