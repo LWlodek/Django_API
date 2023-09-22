@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AbstractUser, Group, Permission
 
 
 # Define the custom Tier model for account tiers with configurable options.
@@ -30,3 +30,15 @@ class Image(models.Model):
 
     def generate_expiring_link(self, expiration_seconds):
         pass
+
+
+class CustomUser(AbstractUser):
+    tier = models.ForeignKey(Tier, on_delete=models.CASCADE, null=True, blank=True)
+
+    # Add unique related_name values for groups and user_permissions
+    groups = models.ManyToManyField(Group, blank=True, related_name='custom_users_groups')
+    user_permissions = models.ManyToManyField(
+        Permission,
+        blank=True,
+        related_name='custom_users_user_permissions',
+    )

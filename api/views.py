@@ -16,7 +16,6 @@ class ImageUploadView(APIView):
 
         if serializer.is_valid():
             uploaded_image = serializer.validated_data['image']
-            # image_instance = Image.objects.create(user=request.user, image_file=uploaded_image)
 
             # Create an Image instance with the default tier
             image_instance = Image.objects.create(

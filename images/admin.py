@@ -5,6 +5,10 @@ from . import models
 class AuthorAdmin2(admin.ModelAdmin):
     list_display = ('image_file',)
 
+@admin.register(models.CustomUser)
+class AuthorAdmin3(admin.ModelAdmin):
+    list_display = ('username', 'tier',)
+
 @admin.register(models.Tier)
 class AuthorAdmin(admin.ModelAdmin):
     list_display = ('name','thumbnail_sizes1', 'thumbnail_sizes2',
