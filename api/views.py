@@ -6,6 +6,7 @@ from .serializers import ImageUploadSerializer
 from images.models import Image
 from PIL import Image as PILImage
 from io import BytesIO
+import os
 from django.core.files.base import ContentFile
 
 class ImageUploadView(APIView):
@@ -29,21 +30,26 @@ class ImageUploadView(APIView):
                 image_file=uploaded_image
             )
 
-            # Generate and save thumbnails
-            generate_and_save_thumbnail(uploaded_image, image_instance, size=(200, 200), field_name='thumbnail_200px')
-            generate_and_save_thumbnail(uploaded_image, image_instance, size=(400, 400), field_name='thumbnail_400px')
+            # Generate and save thumbnails 200x200px
+            generate_and_save_thumbnail(uploaded_image, image_instance, size=(200, 200))
+
+            # Generate and save thumbnails 200x200px
+            generate_and_save_thumbnail(uploaded_image, image_instance, size=(400, 400))
 
             return Response({'message': 'Image uploaded successfully'}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-def generate_and_save_thumbnail(original_image, image_instance, size=(200, 200), field_name='thumbnail_200px'):
+def generate_and_save_thumbnail(original_image, image_instance, size=(200, 200)):
     try:
+        # Parse width and height from the size parameter
+        width, height = size
+
         # Open the uploaded image
         img = PILImage.open(original_image)
 
         # Resize the image to the specified size without maintaining the aspect ratio
-        img = img.resize(size, PILImage.BILINEAR)  # Use BILINEAR resampling filter for downsampling
+        img = img.resize((width, height), PILImage.BILINEAR)  # Use BILINEAR resampling filter for downsampling
 
         # Create a BytesIO object to store the thumbnail
         thumbnail_io = BytesIO()
@@ -54,16 +60,17 @@ def generate_and_save_thumbnail(original_image, image_instance, size=(200, 200),
         # Seek to the beginning of the BytesIO object
         thumbnail_io.seek(0)
 
-        # Save the thumbnail to the appropriate field in the Image instance
-        image_field = getattr(image_instance, field_name, None)
+        # Construct the filename based on the size parameter
+        ################If there will be enough time, rework naming system ###########################################
+        filename = f'thumbnail_{width}x{height}.jpg'
 
-        if image_field:
-            image_field.save(
-                f'thumbnail_{size[0]}x{size[1]}.jpg',
-                ContentFile(thumbnail_io.read()),
-                save=False,  # Set save to False to prevent recursion
-            )
-            image_instance.save()  # Save the Image instance with the thumbnail
+        # Save the thumbnail to the appropriate field in the Image instance
+        image_instance.thumbnail.save(
+            filename,
+            ContentFile(thumbnail_io.read()),
+            save=False,  # Set save to False to prevent recursion
+        )
+        image_instance.save()  # Save the Image instance with the thumbnail
 
     except Exception as e:
         print(f"Error processing image: {e}")

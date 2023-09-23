@@ -11,5 +11,5 @@ class AuthorAdmin3(admin.ModelAdmin):
 
 @admin.register(models.Tier)
 class AuthorAdmin(admin.ModelAdmin):
-    list_display = ('name','thumbnail_sizes1', 'thumbnail_sizes2',
+    list_display = ('name','thumbnail_size',
                     'has_original_link', 'can_generate_expiring_link',) #tutaj wyswietlanie rozmiarow?
