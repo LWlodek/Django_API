@@ -21,12 +21,12 @@ class UserProfile(AbstractUser):
 class Image(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     tier = models.ForeignKey(Tier, on_delete=models.PROTECT)
-    image_file = models.ImageField(upload_to='images/')
+    image_file = models.ImageField(upload_to='original/')
     upload_datetime = models.DateTimeField(auto_now_add=True)
     expiration_time = models.DateTimeField(null=True, blank=True)
     original_link = models.URLField(null=True, blank=True)
-    thumbnail_200px = models.ImageField(upload_to='thumbnails/200px/', null=True, blank=True)
-    thumbnail_400px = models.ImageField(upload_to='thumbnails/400px/', null=True, blank=True)
+    thumbnail_200px = models.ImageField(upload_to='200px/', null=True, blank=True)
+    thumbnail_400px = models.ImageField(upload_to='400px/', null=True, blank=True)
 
     def __str__(self):
         return f"Image uploaded by {self.user.username} at {self.upload_datetime}"
