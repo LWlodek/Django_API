@@ -13,7 +13,6 @@ from django.conf import settings
 class ImageUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
-
     def post(self, request, format=None):
         serializer = ImageUploadSerializer(data=request.data)
 
@@ -37,17 +36,31 @@ class ImageUploadView(APIView):
             image_instance.original_link = settings.MEDIA_URL + image_instance.image_file.name
             image_instance.save()
 
-            # Generate and save thumbnails 200x200px
+            # Generate and save the 200px thumbnail
             generate_and_save_thumbnail(uploaded_image, image_instance, size=(200, 200))
+            # Calculate and save the URLs for the 200px thumbnail
+            image_instance.thumbnail_200px = settings.MEDIA_URL + image_instance.thumbnail.name
 
-            # Generate and save thumbnails 400x400px if user is premium or enterprise
+            # If user is premium or enterprise, generate and save the 400px thumbnail
             if user_tier.name in ['Premium', 'Enterprise']:
                 generate_and_save_thumbnail(uploaded_image, image_instance, size=(400, 400))
 
-            return Response({'message': 'Image uploaded successfully'}, status=status.HTTP_201_CREATED)
+                # Calculate and save the URLs for the  400px thumbnail
+                image_instance.thumbnail_400px = settings.MEDIA_URL + image_instance.thumbnail.name
+                image_instance.save()
+
+            # Construct the response based on the user's plan
+            response_data = {
+                'message': 'Image uploaded successfully',
+                'thumbnail_200px': image_instance.thumbnail_200px,
+                'thumbnail_400px': image_instance.thumbnail_400px if user_tier.name != 'Basic' else None,
+                'original_link': image_instance.original_link if user_tier.name != 'Basic' else None,
+                # 'thumbnail_400px': image_instance.thumbnail_400px if user_tier.name == 'Enterprise' else None,
+            }
+
+            return Response(response_data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 def generate_and_save_thumbnail(original_image, image_instance, size=(200, 200)):
     try:

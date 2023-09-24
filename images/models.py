@@ -24,10 +24,13 @@ class Image(models.Model):
     upload_datetime = models.DateTimeField(auto_now_add=True)
     expiration_time = models.DateTimeField(null=True, blank=True)
     original_link = models.URLField(null=True, blank=True)
-    thumbnail = models.ImageField(upload_to='thumbnails/', null=True, blank=True)
+    thumbnail = models.ImageField(upload_to='thumbnails/', default='default_thumbnail.jpg')
+    thumbnail_200px = models.URLField(null=True, blank=True)
+    thumbnail_400px = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return f"Image uploaded by {self.user.username} at {self.upload_datetime}"
+
 
     def generate_expiring_link(self, expiration_seconds):
         pass
