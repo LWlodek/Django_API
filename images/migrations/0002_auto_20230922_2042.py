@@ -8,21 +8,22 @@ def create_tiers(apps, schema_editor):
 
     basic_tier = Tier.objects.create(
         name="Basic",
-        thumbnail_size="200"
+        has_original_link=False,
+        can_generate_expiring_link=False
     )
 
     premium_tier = Tier.objects.create(
         name="Premium",
-        thumbnail_size="200,400",
-        has_original_link=True
+        has_original_link=True,
+        can_generate_expiring_link=False
     )
 
     enterprise_tier = Tier.objects.create(
         name="Enterprise",
-        thumbnail_size="200,400",
         has_original_link=True,
         can_generate_expiring_link=True
     )
+
 class Migration(migrations.Migration):
 
     dependencies = [

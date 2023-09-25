@@ -5,3 +5,4 @@ urlpatterns = [
     path('upload-image/', ImageUploadView.as_view(), name='image-upload'),
     path('list/', ImageListView.as_view(), name='image-list'),
 ]
+

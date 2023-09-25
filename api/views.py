@@ -19,6 +19,17 @@ class ImageUploadView(APIView):
         if serializer.is_valid():
             uploaded_image = serializer.validated_data['image']
 
+            # Check the image format using PIL (Pillow)
+            try:
+                img = PILImage.open(uploaded_image)
+                img_format = img.format.upper()  # Get the image format (e.g., JPEG, PNG, GIF)
+
+                # Only allow JPEG and PNG formats
+                if img_format not in ['JPEG', 'PNG']:
+                    return Response({'error': 'Invalid image format'}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({'error': 'Invalid image format'}, status=status.HTTP_400_BAD_REQUEST)
+
             # Check the content type of the uploaded image
             content_type = uploaded_image.content_type
             if not content_type.startswith('image'):
@@ -41,11 +52,11 @@ class ImageUploadView(APIView):
             # Calculate and save the URLs for the 200px thumbnail
             image_instance.thumbnail_200px = settings.MEDIA_URL + image_instance.thumbnail.name
 
-            # If user is premium or enterprise, generate and save the 400px thumbnail
+            # If the user is premium or enterprise, generate and save the 400px thumbnail
             if user_tier.name in ['Premium', 'Enterprise']:
                 generate_and_save_thumbnail(uploaded_image, image_instance, size=(400, 400))
 
-                # Calculate and save the URLs for the  400px thumbnail
+                # Calculate and save the URL for the 400px thumbnail
                 image_instance.thumbnail_400px = settings.MEDIA_URL + image_instance.thumbnail.name
                 image_instance.save()
 
@@ -55,12 +66,12 @@ class ImageUploadView(APIView):
                 'thumbnail_200px': image_instance.thumbnail_200px,
                 'thumbnail_400px': image_instance.thumbnail_400px if user_tier.name != 'Basic' else None,
                 'original_link': image_instance.original_link if user_tier.name != 'Basic' else None,
-                # 'thumbnail_400px': image_instance.thumbnail_400px if user_tier.name == 'Enterprise' else None,
             }
 
             return Response(response_data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 def generate_and_save_thumbnail(original_image, image_instance, size=(200, 200)):
     try:
