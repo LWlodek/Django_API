@@ -19,5 +19,5 @@ class ImageListSerializer(serializers.ModelSerializer):
         return obj.original_link
 
 
-class ExpiringLinkSerializer(serializers.Serializer):
-    expiration_seconds = serializers.IntegerField(min_value=300, max_value=30000)
+# class ExpiringLinkSerializer(serializers.Serializer):
+#     expiration_seconds = serializers.IntegerField(min_value=300, max_value=30000)

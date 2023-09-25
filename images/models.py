@@ -1,11 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-
 # Define the custom Tier model for account tiers with configurable options.
 class Tier(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    thumbnail_size = models.CharField(max_length=255, blank=True, null=True)  # Store thumbnail sizes as CSV
+    thumbnail_size = models.CharField(max_length=255, blank=True, null=True)
     has_original_link = models.BooleanField(default=False)
     can_generate_expiring_link = models.BooleanField(default=False)
 
@@ -32,6 +31,18 @@ class Image(models.Model):
     def __str__(self):
         return f"Image uploaded by {self.user.username} at {self.upload_datetime}"
 
-
-    def generate_expiring_link(self, expiration_seconds):
-        pass
+    # EXPIRING LINKS, not finished
+    # def generate_expiring_link(self, expiration_seconds):
+    #     # Calculate the expiration time as the current time plus the specified seconds
+    #     expiration_time = datetime.now() + timedelta(seconds=expiration_seconds)
+    #
+    #     # Create a TimestampSigner instance
+    #     signer = TimestampSigner()
+    #
+    #     # Sign the image's ID and expiration time
+    #     signed_data = signer.sign(f"{self.id}:{expiration_time}")
+    #
+    #     # Generate the expiring link
+    #     expiring_link = f"/api/expiring-link/{self.id}/{signed_data}"
+    #
+    #     return expiring_link

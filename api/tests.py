@@ -3,7 +3,7 @@ from .serializers import ImageUploadSerializer
 from .image_module import create_dummy_image  # Import  dummy image function
 from django.core.files.uploadedfile import SimpleUploadedFile
 from io import BytesIO
-from rest_framework.parsers import MultiPartParser, FormParser
+
 class ImageUploadSerializerTest(TestCase):
     def test_valid_image_upload_serializer(self):
         # Create a dummy image for testing

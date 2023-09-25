@@ -22,7 +22,7 @@ class ImageUploadView(APIView):
             # Check the image format using PIL (Pillow)
             try:
                 img = PILImage.open(uploaded_image)
-                img_format = img.format.upper()  # Get the image format (e.g., JPEG, PNG, GIF)
+                img_format = img.format.upper()
 
                 # Only allow JPEG and PNG formats
                 if img_format not in ['JPEG', 'PNG']:
@@ -55,7 +55,6 @@ class ImageUploadView(APIView):
             # If the user is premium or enterprise, generate and save the 400px thumbnail
             if user_tier.name in ['Premium', 'Enterprise']:
                 generate_and_save_thumbnail(uploaded_image, image_instance, size=(400, 400))
-
                 # Calculate and save the URL for the 400px thumbnail
                 image_instance.thumbnail_400px = settings.MEDIA_URL + image_instance.thumbnail.name
                 image_instance.save()
@@ -114,3 +113,31 @@ class ImageListView(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         return Image.objects.filter(user=user).order_by('-upload_datetime')
+
+
+# class ExpiringLinkView(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+#
+#     def post(self, request, image_id):
+#         # Ensure the user is an Enterprise user
+#         if request.user.tier.name != 'Enterprise':
+#             return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
+#
+#         # Retrieve the image instance by ID
+#         try:
+#             image = Image.objects.get(id=image_id)
+#         except Image.DoesNotExist:
+#             return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
+#
+#         # Deserialize and validate the expiration time
+#         serializer = ExpiringLinkSerializer(data=request.data)
+#         if serializer.is_valid():
+#             expiration_seconds = serializer.validated_data['expiration_seconds']
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+#         # Generate the expiring link (You need to implement this method in the model)
+#         expiring_link = image.generate_expiring_link(expiration_seconds)
+#
+#         # Return the expiring link
+#         return Response({'expiring_link': expiring_link}, status=status.HTTP_200_OK)
